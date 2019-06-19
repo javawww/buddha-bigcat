@@ -116,3 +116,41 @@
 2019-06-19 11:48:59,645 - Null reference [template '/templates/views.vue.vm', line 332, column 14] : $nextTick cannot be resolved.
 2019-06-19 11:48:59,645 - Null reference [template '/templates/views.vue.vm', line 342, column 14] : $refs cannot be resolved.
 2019-06-19 11:48:59,669 - ResourceManager : found /templates/api.js.vm with loader org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+2019-06-19 16:39:11,355 - Log4JLogChute initialized using file 'velocity.log'
+2019-06-19 16:39:11,356 - Initializing Velocity, Calling init()...
+2019-06-19 16:39:11,356 - Starting Apache Velocity v1.7 (compiled: 2010-11-19 12:14:37)
+2019-06-19 16:39:11,356 - Default Properties File: org\apache\velocity\runtime\defaults\velocity.properties
+2019-06-19 16:39:11,356 - Trying to use logger class org.apache.velocity.runtime.log.AvalonLogChute
+2019-06-19 16:39:11,356 - Target log system for org.apache.velocity.runtime.log.AvalonLogChute is not available (java.lang.NoClassDefFoundError: org/apache/log/format/Formatter).  Falling back to next log system...
+2019-06-19 16:39:11,356 - Trying to use logger class org.apache.velocity.runtime.log.Log4JLogChute
+2019-06-19 16:39:11,356 - Using logger class org.apache.velocity.runtime.log.Log4JLogChute
+2019-06-19 16:39:11,362 - ResourceLoader instantiated: org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+2019-06-19 16:39:11,396 - ResourceCache: initialized (class org.apache.velocity.runtime.resource.ResourceCacheImpl) with class java.util.Collections$SynchronizedMap cache map.
+2019-06-19 16:39:11,398 - Loaded System Directive: org.apache.velocity.runtime.directive.Stop
+2019-06-19 16:39:11,400 - Loaded System Directive: org.apache.velocity.runtime.directive.Define
+2019-06-19 16:39:11,400 - Loaded System Directive: org.apache.velocity.runtime.directive.Break
+2019-06-19 16:39:11,401 - Loaded System Directive: org.apache.velocity.runtime.directive.Evaluate
+2019-06-19 16:39:11,402 - Loaded System Directive: org.apache.velocity.runtime.directive.Literal
+2019-06-19 16:39:11,404 - Loaded System Directive: org.apache.velocity.runtime.directive.Macro
+2019-06-19 16:39:11,406 - Loaded System Directive: org.apache.velocity.runtime.directive.Parse
+2019-06-19 16:39:11,408 - Loaded System Directive: org.apache.velocity.runtime.directive.Include
+2019-06-19 16:39:11,410 - Loaded System Directive: org.apache.velocity.runtime.directive.Foreach
+2019-06-19 16:39:11,458 - Created '20' parsers.
+2019-06-19 16:39:11,466 - Velocimacro : "velocimacro.library" is not set.  Trying default library: VM_global_library.vm
+2019-06-19 16:39:11,467 - Could not load resource 'VM_global_library.vm' from ResourceLoader org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader: ClasspathResourceLoader Error: cannot find resource VM_global_library.vm
+2019-06-19 16:39:11,467 - Velocimacro : Default library not found.
+2019-06-19 16:39:11,467 - Velocimacro : allowInline = true : VMs can be defined inline in templates
+2019-06-19 16:39:11,467 - Velocimacro : allowInlineToOverride = false : VMs defined inline may NOT replace previous VM definitions
+2019-06-19 16:39:11,467 - Velocimacro : allowInlineLocal = false : VMs defined inline will be global in scope if allowed.
+2019-06-19 16:39:11,467 - Velocimacro : autoload off : VM system will not automatically reload global library macros
+2019-06-19 16:39:11,502 - ResourceManager : found /templates/serviceImpl.java.vm with loader org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+2019-06-19 16:39:11,577 - ResourceManager : found /templates/entity.java.vm with loader org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+2019-06-19 16:39:11,602 - ResourceManager : found /templates/mapper.java.vm with loader org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+2019-06-19 16:39:11,606 - ResourceManager : found /templates/mapper.xml.vm with loader org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+2019-06-19 16:39:11,636 - ResourceManager : found /templates/param.java.vm with loader org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+2019-06-19 16:39:11,710 - ResourceManager : found /templates/controller.java.vm with loader org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+2019-06-19 16:39:11,907 - ResourceManager : found /templates/views.vue.vm with loader org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+2019-06-19 16:39:11,924 - Null reference [template '/templates/views.vue.vm', line 319, column 14] : $nextTick cannot be resolved.
+2019-06-19 16:39:11,924 - Null reference [template '/templates/views.vue.vm', line 332, column 14] : $nextTick cannot be resolved.
+2019-06-19 16:39:11,925 - Null reference [template '/templates/views.vue.vm', line 342, column 14] : $refs cannot be resolved.
+2019-06-19 16:39:11,950 - ResourceManager : found /templates/api.js.vm with loader org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
