@@ -1,0 +1,442 @@
+<template>
+  <div class="app-container">
+    <div class="filter-container" style="display: flex;justify-content: space-between">
+      <div>
+      <el-form :inline="true" class="demo-form-inline">
+#foreach($field in ${table.fields})
+#if(!${field.keyFlag} && $!field.type.indexOf("varchar") != -1)
+        <el-form-item label="${field.comment}">
+               <el-input @keyup.enter.native="handleFilter" v-model="listQuery.${field.propertyName}" placeholder="${field.comment}"></el-input>
+        </el-form-item>
+#elseif(!${field.keyFlag} && $!field.type.indexOf("datetime") != -1)
+        <el-date-picker
+            style="width: 200px;" class="filter-item"
+            v-model="listQuery.${field.propertyName}"
+            type="date"
+            placeholder="${field.comment}"
+            :picker-options="pickerOptions0">
+        </el-date-picker>
+#end
+#end
+          <br>
+          <el-date-picker
+             style="width: 200px;" class="filter-item"
+             v-model="listQuery.beginTime"
+             type="date"
+             placeholder="开始日期"
+             :picker-options="pickerOptions0">
+	      </el-date-picker>
+	      <el-date-picker
+	             style="width: 200px;" class="filter-item"
+	             v-model="listQuery.endTime"
+	             type="date"
+	             placeholder="结束日期"
+	             :picker-options="pickerOptions1">
+	      </el-date-picker>
+	      
+          <el-button class="filter-item" type="primary" v-waves icon="el-icon-search" @click="handleFilter">搜索</el-button>
+        </el-form>
+      </div>
+      <div>
+        <el-button type="primary" @click="handleAdd${table.entityName}">新增</el-button>
+      </div>
+    </div>
+
+    <el-table :data="list" v-loading="listLoading" border fit highlight-current-row
+              style="width: 100%;">
+#foreach($field in ${table.fields})
+#if(!${field.keyFlag} && $!field.type.indexOf("varchar") != -1 && $!field.comment.indexOf("图片") == -1)
+      <el-table-column width="" align="center" label="${field.comment}">
+        <template slot-scope="scope">
+          <span>{{scope.row.${field.propertyName}}}</span>
+        </template>
+      </el-table-column>
+#elseif(!${field.keyFlag} && $!field.type.indexOf("varchar") != -1 && $!field.comment.indexOf("图片") != -1)
+      <el-table-column width="" align="center" label="${field.comment}">
+        <template slot-scope="scope">
+          <img style="height: 100px" :src="scope.row.${field.propertyName}">
+        </template>
+      </el-table-column>
+#elseif(!${field.keyFlag} && ($!field.type.indexOf("decimal") != -1 || $!field.type.indexOf("int") != -1) && $!field.name != 'status' && $!field.name != 'is_del')
+      <el-table-column width="" align="center" label="${field.comment}">
+        <template slot-scope="scope">
+          <span>{{scope.row.${field.propertyName}}}</span>
+        </template>
+      </el-table-column>
+#elseif(!${field.keyFlag} && $!field.name == 'status') 
+	  <el-table-column width="" align="center" label="${field.comment}">
+        <template slot-scope="scope">
+          <el-tag>{{scope.row.${field.propertyName} | ${field.propertyName}Filter}}</el-tag>
+        </template>
+      </el-table-column>
+#elseif(!${field.keyFlag} && $!field.name == 'is_del') 
+  	  <el-table-column width="" align="center" label="${field.comment}">
+        <template slot-scope="scope">
+          <el-tag>{{scope.row.${field.propertyName} | ${field.propertyName}Filter}}</el-tag>
+        </template>
+      </el-table-column>
+#elseif(!${field.keyFlag} && $!field.type.indexOf("datetime") != -1)
+      <el-table-column width="160px" align="center" label="${field.comment}">
+        <template slot-scope="scope">
+          <span>{{scope.row.${field.propertyName}}}</span>
+        </template>
+      </el-table-column>
+#end
+#end
+      <el-table-column align="center" label="操作"  width="" class-name="small-padding fixed-width">
+        <template slot-scope="scope">
+          <el-button type="success" size="mini" @click="handleEdit${table.entityName}(scope.row)">编辑</el-button>
+          <el-button type="danger" size="mini" @click="handleDelete${table.entityName}(scope.row)">删除</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+
+    <div class="pagination-container">
+      <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange"
+                     :current-page="listQuery.page" :page-sizes="[10,20,30, 50]" :page-size="listQuery.pageSize"
+                     layout="total, sizes, prev, pager, next, jumper" :total="total">
+      </el-pagination>
+    </div>
+
+    <el-dialog
+      :title="textMap[dialogStatus]"
+      :visible.sync="dialogVisible"
+      :close-on-click-modal="false"
+      width="50%">
+      <el-form ref="${table.entityPath}Form" :model="${table.entityPath}Param" :rules="${table.entityPath}Rules" status-icon label-width="130px">
+#foreach($field in ${table.fields})
+#if(!${field.keyFlag} && $!field.type.indexOf("varchar") != -1 && $!field.comment.indexOf("图片") == -1)
+        <el-form-item label="${field.comment}" prop="${field.propertyName}">
+           <el-input v-model="${table.entityPath}Param.${field.propertyName}"></el-input>
+        </el-form-item>
+#elseif(!${field.keyFlag} && ($!field.type.indexOf("decimal") != -1 || $!field.type.indexOf("int") != -1) && $!field.name != 'status' && $!field.name != 'is_del')
+        <el-form-item label="${field.comment}" prop="${field.propertyName}">
+           <el-input type="number" v-model="${table.entityPath}Param.${field.propertyName}"><i slot="prefix" class="el-input__icon el-icon-goods"></i></el-input>
+        </el-form-item>
+#elseif(!${field.keyFlag} && $!field.type.indexOf("text") != -1)
+        <el-form-item label="${field.comment}" prop="${field.propertyName}">
+          <tinymce v-model="${table.entityPath}Param.${field.propertyName}" :id="tid_${field.propertyName}" ref="tinymce_${field.propertyName}"/>
+        </el-form-item>
+#elseif(!${field.keyFlag} && $!field.type.indexOf("varchar") != -1 && $!field.comment.indexOf("图片") != -1)
+        <el-form-item label="${field.comment}" prop="${field.propertyName}">
+          <el-upload
+            class="avatar-uploader"
+            action=""
+            :before-upload="beforeAvatarUpload"
+            :show-file-list="false"
+            :http-request="picUpload${field.propertyName}">
+            <img v-if="${table.entityPath}Param.${field.propertyName}" :src="${table.entityPath}Param.${field.propertyName}" class="avatar">
+            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+          </el-upload>
+        </el-form-item> 
+#elseif(!${field.keyFlag} && $!field.name == 'status') 
+        <el-form-item label="${field.comment}" prop="${field.propertyName}">
+          <el-select class="filter-item" v-model="${table.entityPath}Param.status" placeholder="请选择">
+            <el-option v-for="item in  statusOptions" :key="item.key" :label="item.label" :value="item.key">
+            </el-option>
+          </el-select>
+        </el-form-item>
+#elseif(!${field.keyFlag} && $!field.name == 'is_del')
+        <el-form-item label="${field.comment}" prop="${field.propertyName}">
+          <el-select class="filter-item" v-model="${table.entityPath}Param.isDel" placeholder="请选择">
+            <el-option v-for="item in  isDelOptions" :key="item.key" :label="item.label" :value="item.key">
+            </el-option>
+          </el-select>
+        </el-form-item>
+#end
+#end
+
+
+
+      </el-form>
+
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="handleSaveOrUpdate">确 定</el-button>
+      </span>
+    </el-dialog>
+
+  </div>
+</template>
+
+<script>
+  import { pageList${table.entityName}, list${table.entityName}, detail${table.entityName}, save${table.entityName}, update${table.entityName}, del${table.entityName} } from '@/api/${table.entityName}.js'
+  import Tinymce from '@/components/Tinymce' // 富文本编辑器
+  import waves from '@/directive/waves' // 水波纹指令
+  import axios from 'axios' // 异步请求
+  import { getTempAuthToken } from '@/api/uploadOss' // 上传图片TOKEN
+  const defaultParam = {
+  #foreach($field in ${table.fields})
+  ${field.propertyName}: null, //${field.comment}
+  #end
+}
+
+  export default {
+    name: '${table.entityPath}',
+    directives: {waves },
+    components: { Tinymce },
+    data() {
+      return {
+	       pickerOptions0: {
+	       disabledDate: (time) => {
+	          if (this.value2 != '') {
+	            return time.getTime() > Date.now() || time.getTime() > this.value2
+	          } else {
+	            return time.getTime() > Date.now()
+	          }
+	        }
+	      },
+	     pickerOptions1: {
+	        disabledDate: (time) => {
+	          return time.getTime() < this.value1 || time.getTime() > Date.now()
+	        }
+	     },
+	     isDelOptions: [{ label: '正常', key: 0 }, { label: '删除', key: 1 }],
+       statusOptions: [{ label: '审核中', key: 0 }, { label: '通过', key: 1 }, { label: '拒绝', key: 2 }],
+	     ${table.entityPath}Rules: {
+#foreach($field in ${table.fields})
+#if(!${field.keyFlag})
+	       ${field.propertyName}: [{ required: true, trigger: 'change', message: '${field.comment}不能为空' }],
+#end
+#end
+	      },
+        dialogVisible: false,
+        dialogStatus: 'create',
+        textMap: {
+          update: '编辑',
+          create: '新增'
+        },
+        list: [],
+        total: 0,
+        listLoading: true,
+        listQuery: {
+          page: 1,
+          pageSize: 10,
+#foreach($field in ${table.fields})
+          ${field.propertyName}: null, //${field.comment}
+#end
+        },
+        ${table.entityPath}Param: Object.assign({}, defaultParam),
+#foreach($field in ${table.fields})
+#if(!${field.keyFlag} && $!field.type.indexOf("text") != -1)
+        tid_${field.propertyName}: 'tinymce_${field.propertyName}' + new Date().getMilliseconds(),
+#end
+#end
+      }
+    },
+    filters: {
+      statusFilter(level) {
+        const statusArr = ['审核中', '通过', '拒绝']
+        return statusArr[level]
+      },
+      isDelFilter(level) {
+        const isDelArr = ['正常', '删除']
+        return isDelArr[level]
+      }
+    },
+    created() {
+      this.pageList${table.entityName}()
+    },
+    methods: {
+      handleSizeChange(val) {
+        this.listQuery.pageSize = val
+        this.pageList${table.entityName}()
+      },
+      handleCurrentChange(val) {
+        this.listQuery.page = val
+        this.pageList${table.entityName}()
+      },
+      // 搜索
+      handleFilter() {
+        this.listQuery.page = 1
+        this.pageList${table.entityName}()
+      },
+      // 图片上传前验证
+      // 一般情况下只需要实现以下函数即可
+      // 图片上传前验证
+      beforeAvatarUpload(file) {
+        const isLt2M = file.size / 1024 / 1024 < 2
+        if (!isLt2M) {
+          this.${cfg.dollor}message.error('上传头像图片大小不能超过 2MB!')
+        }
+        return isLt2M
+      },
+      // 上传图片到OSS 同时派发一个事件给父组件监听
+#foreach($field in ${table.fields})
+#if(!${field.keyFlag} && $!field.type.indexOf("varchar") != -1 && $!field.comment.indexOf("图片") != -1)
+      picUpload${field.propertyName}(file) {
+        getTempAuthToken().then(res => {
+          const originName = file.file.name
+          // 设置文件名
+          let fileName = new Date().getTime() + Math.ceil(Math.random() * 100000)
+          const index1 = originName.lastIndexOf('.')
+          const index2 = originName.length
+          fileName += originName.substring(index1, index2)
+          const oss = res.data
+          oss.key = oss.dir + fileName
+          // oss.fileUploadUrl = 'http://hasaki-business.oss-cn-shenzhen.aliyuncs.com'
+          console.log('oss dir value  is : ', oss)
+          // 图片通过表单方式上传，所以要声明一个表单对象
+          var ossData = new FormData()
+          ossData.append('name', file.file.name)
+          // key就代表文件层级和阿里云上的文件名
+          ossData.append('key', oss.key)
+          ossData.append('policy', oss.policy)
+          ossData.append('OSSAccessKeyId', oss.accessKeyId)
+          // 阿里云正常返回204，然后返回信息是空的，想看到返回信息强制让它返回201，返回一个xml文件可以提取有用的信息
+          ossData.append('success_action_status', oss.successActionStatus)
+          ossData.append('signature', oss.signature)
+          ossData.append('file', file.file, file.file.name)
+          axios.post(oss.fileUploadUrl, ossData, {
+            headers: { 'Content-Type': 'multipart/form-data; boundary={boundary}' }
+          })
+            .then(res => {
+              this.${table.entityPath}Param.${field.propertyName} = oss.fileUploadUrl + '/' + oss.key
+            })
+            .catch(error => {
+              console.log(error, '错误')
+            })
+        }).catch(err => {
+          console.error(err)
+        })
+      },
+#end
+#end
+      // 加载数据
+      pageList${table.entityName}() {
+        this.listLoading = true
+        pageList${table.entityName}(this.listQuery).then(response => {
+          this.list = response.data.records
+          this.total = response.data.total
+          this.listLoading = false
+        })
+      },
+      // 显示添加弹窗
+      handleAdd${table.entityName}() {
+        this.dialogStatus = 'create'
+        this.dialogVisible = true
+        this.${table.entityPath}Param = Object.assign({}, defaultParam)
+        this.$nextTick(() => {
+#foreach($field in ${table.fields})
+#if(!${field.keyFlag} && $!field.type.indexOf("text") != -1)
+          this.${cfg.dollor}refs.tinymce_${field.propertyName}.setContent('')
+#end
+#end
+        })
+      },
+      // 显示编辑弹窗
+      handleEdit${table.entityName}(item) {
+        this.dialogStatus = 'update'
+        this.${table.entityPath}Param = item
+        this.dialogVisible = true
+        this.$nextTick(() => {
+#foreach($field in ${table.fields})
+#if(!${field.keyFlag} && $!field.type.indexOf("text") != -1)
+          this.${cfg.dollor}refs.tinymce_${field.propertyName}.setContent(item.${field.propertyName})
+#end
+#end
+        })
+      },
+      // 保存或更新
+      handleSaveOrUpdate() {
+        this.$refs.${table.entityPath}Form.validate((valid) => {
+        	if (valid){
+        		// 主键为空 -> 新增
+		        if (this.${table.entityPath}Param.id == null) {
+		          save${table.entityName}(this.${table.entityPath}Param).then(response => {
+		            if (response.code === 600) {
+		              this.dialogVisible = false
+		              this.pageList${table.entityName}()
+		            } else {
+		              this.${cfg.dollor}message({
+		                message: response.msg,
+		                type: 'error'
+		              })
+		            }
+		          }).catch(error => {
+		            console.log('发生错误了')
+		            console.dir(error)
+		          })
+		        } else {
+		          // 有主键 -> 更新
+		          update${table.entityName}(this.${table.entityPath}Param).then(response => {
+		            if (response.code === 600) {
+		              this.dialogVisible = false
+		              this.pageList${table.entityName}()
+		            } else {
+		              this.${cfg.dollor}message({
+		                message: response.msg,
+		                type: 'error'
+		              })
+		            }
+		          }).catch(error => {
+		            console.log('发生错误了')
+		            console.dir(error)
+		          })
+		        }
+        	}
+        })
+      },
+      // 删除
+      handleDelete${table.entityName}(item) {
+        this.${cfg.dollor}confirm('此操作将永久删除该记录, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          del${table.entityName}({ id: item.id }).then(response => {
+            if (response.code === 600) {
+              this.${cfg.dollor}message({
+                type: 'success',
+                message: '删除成功!'
+              })
+              this.pageList${table.entityName}()
+            } else {
+              this.${cfg.dollor}message({
+                message: response.msg,
+                type: 'error'
+              })
+            }
+          }).catch(error => {
+            console.log('发生错误了')
+            console.dir(error)
+          })
+        }).catch(() => {
+          this.${cfg.dollor}message({
+            type: 'info',
+            message: '已取消删除'
+          })
+        })
+      }
+    },
+  }
+</script>
+
+<style>
+  .avatar-uploader .el-upload {
+    border: 1px dashed ${cfg.well}d9d9d9;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .avatar-uploader .el-upload:hover {
+    border-color: ${cfg.well}409EFF;
+  }
+
+  .avatar-uploader-icon {
+    font-size: 28px;
+    color: ${cfg.well}8c939d;
+    min-width: 178px;
+    height: 178px;
+    line-height: 178px;
+    text-align: center;
+  }
+
+  .avatar {
+    min-width: 178px;
+    height: 178px;
+    display: block;
+  }
+</style>

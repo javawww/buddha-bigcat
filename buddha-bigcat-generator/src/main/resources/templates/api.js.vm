@@ -1,0 +1,57 @@
+import request from '@/utils/request'
+
+export function pageList${table.entityName}(data) {
+  return request({
+    url: '/${cfg.proxy}/${table.entityPath}/pageList',
+    method: 'post',
+    data
+  })
+}
+
+export function list${table.entityName}(data) {
+  return request({
+    url: '/${cfg.proxy}/${table.entityPath}/list',
+    method: 'post',
+    data
+  })
+}
+
+export function detail${table.entityName}(data) {
+  return request({
+    url: '/${cfg.proxy}/${table.entityPath}/detail',
+    method: 'post',
+    data
+  })
+}
+
+export function save${table.entityName}(data) {
+  return request({
+    url: '/${cfg.proxy}/${table.entityPath}/save',
+    method: 'post',
+    data
+  })
+}
+
+export function update${table.entityName}(data) {
+  return request({
+    url: '/${cfg.proxy}/${table.entityPath}/update',
+    method: 'post',
+    data
+  })
+}
+
+export function del${table.entityName}(data) {
+  return request({
+    url: '/${cfg.proxy}/${table.entityPath}/del',
+    method: 'post',
+    data
+  })
+}
+
+export function selectOptions${table.entityName}(data) {
+  return request({
+    url: '/${cfg.proxy}/${table.entityPath}/options',
+    method: 'post',
+    data
+  })
+}

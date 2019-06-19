@@ -1,0 +1,52 @@
+package com.buddha.param;
+
+import java.math.BigDecimal;
+import java.util.Date;
+
+import lombok.Getter;
+import lombok.Setter;
+#set ($jinghao='#############################################################################')
+ /**
+ * 
+ * $!{table.comment}-实体参数
+ *
+ * @author ${author}
+ * @since ${date}
+ */
+@Getter
+@Setter
+#if(!${superEntityClass})
+public class ${entity}Param extends ${superEntityClass}#if(${activeRecord})<${entity}>#end {
+#elseif(${activeRecord})
+public class ${entity}Param extends BaseParam {
+#else
+public class ${entity} implements Serializable {
+#end
+
+#foreach($field in ${table.fields})
+#if(${field.keyFlag})
+#set($keyPropertyName=${field.propertyName})
+#end
+#if("$!field.comment" != "" && !${field.keyFlag} && $!field.propertyName != "status" && $!field.propertyName != "name" && $!field.propertyName != "appId" && $!field.propertyName != "remark")
+    /**
+     * ${field.comment}
+     */
+#end
+#if(${field.keyFlag})
+#if(${field.keyIdentityFlag})
+#elseif(${field.convert})
+#end
+#elseif(${field.convert})
+#end
+#if(!${field.keyFlag} && $!field.propertyName != "status" && $!field.propertyName != "name" && $!field.propertyName != "appId" && $!field.propertyName != "remark")
+	private ${field.propertyType} ${field.propertyName};
+#end
+#end
+
+#if(${entityColumnConstant})
+#foreach($field in ${table.fields})
+	public static final String ${field.name.toUpperCase()} = "${field.name}";
+
+#end
+#end
+}

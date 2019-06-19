@@ -1,0 +1,213 @@
+package ${package.Controller};
+import java.util.Date;
+import java.util.List;
+
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+#if(${restControllerStyle})
+import org.springframework.web.bind.annotation.RestController;
+#else
+import org.springframework.stereotype.Controller;
+#end
+#if(${superControllerClassPackage})
+import ${superControllerClassPackage};
+#end
+import ${package.ServiceImpl}.${table.serviceImplName};
+import ${package.Entity}.${entity};
+import com.buddha.param.${table.entityName}Param;
+import com.buddha.component.common.dto.Options;
+
+import com.buddha.component.common.enums.ResultStatusEnum;
+import com.buddha.component.common.utils.ResultJson;
+import com.buddha.component.common.utils.StringUtils;
+import lombok.extern.log4j.Log4j2;
+
+/**
+ * <p>
+ * $!{table.comment} 前端控制器
+ * </p>
+ *
+ * @author ${author}
+ * @since ${date}
+ */
+#if(${restControllerStyle})
+@RestController
+#else
+@Controller
+#end
+@RequestMapping("#if(${package.ModuleName})${package.ModuleName}#end#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end")
+@Log4j2
+#if(${kotlin})
+class ${table.controllerName}#if(${superControllerClass}) : ${superControllerClass}()#end
+
+#else
+#if(${superControllerClass})
+public class ${table.controllerName} extends ${superControllerClass} {
+#else
+public class ${table.controllerName} {
+#end
+
+
+    @Autowired
+    private ${table.serviceImplName} ${table.entityPath}Service;
+
+
+    /**
+	  * 分页
+	 */
+	@PostMapping("pageList")
+    public ResultJson pageList${table.entityName}(@RequestBody ${table.entityName}Param param){
+        try {
+        	QueryWrapper<${table.entityName}> queryWrapper = super.getQueryWrapper(${table.entityName}.class);
+        	// [查询条件]根据业务补充...
+        	//queryWrapper.getEntity().setCreateId(super.systemAdminId.toString());
+        	queryWrapper.getEntity().setAppId(super.appInfoId);
+        	// 排序
+        	queryWrapper.orderByAsc("sorts");
+        	queryWrapper.orderByDesc("create_time");
+        	
+        	IPage<${table.entityName}> page = new Page<${table.entityName}>(param.getPage(), param.getPageSize());
+            page = ${table.entityPath}Service.page(page, queryWrapper);
+            return new ResultJson(ResultStatusEnum.COMMON_SUCCESS, page);
+        } catch (Exception e) {
+			log.error("系统异常，请检查", e);
+            return new ResultJson(e);
+		}
+    }
+
+
+    /**
+     * 全部数据
+     */
+    @PostMapping("list")
+    public ResultJson list${table.entityName}(@RequestBody ${table.entityName}Param param){
+        try {
+        	QueryWrapper<${table.entityName}> queryWrapper = super.getQueryWrapper(${table.entityName}.class);
+        	// [查询条件]根据业务补充...
+        	//queryWrapper.getEntity().setCreateId(super.systemAdminId.toString());
+        	queryWrapper.getEntity().setAppId(super.appInfoId);
+        	//排序
+        	queryWrapper.orderByAsc("sorts");
+        	queryWrapper.orderByDesc("create_time");
+        	
+            List<${table.entityName}> list = ${table.entityPath}Service.list(queryWrapper);
+            return new ResultJson(ResultStatusEnum.COMMON_SUCCESS, list);
+        } catch (Exception e) {
+			log.error("系统异常，请检查", e);
+            return new ResultJson(e);
+		}
+    }
+
+
+    /**
+     * 详情
+     */
+    @PostMapping("detail")
+    public ResultJson detail${table.entityName}(@RequestBody ${table.entityName}Param param){
+        try {
+            // [判断条件]根据业务补充...
+        	if (StringUtils.isNull(param.getId())) {
+                log.info("id为空");
+                return new ResultJson(ResultStatusEnum.PARAMETER_ERROR);
+            }
+        	
+            ${table.entityName} detail = ${table.entityPath}Service.getById(param.getId());
+            return new ResultJson(ResultStatusEnum.COMMON_SUCCESS, detail);
+        } catch (Exception e) {
+			log.error("系统异常，请检查", e);
+            return new ResultJson(e);
+		}
+    }
+
+
+    /**
+     * 保存
+     */
+    @PostMapping("save")
+    public ResultJson save${table.entityName}(@RequestBody ${table.entityName}Param param){
+        try {
+            // [判断条件]根据业务补充...
+        	Date curDate = new Date();
+        	${table.entityName} ${table.entityPath} = new ${table.entityName}();
+            BeanUtils.copyProperties(param, ${table.entityPath});
+            ${table.entityPath}.setCreateTime(curDate);
+            ${table.entityPath}.setUpdateTime(curDate);
+            ${table.entityPath}.setCreateId(super.systemAdminId.toString());
+            ${table.entityPath}.setAppId(super.appInfoId);
+            ${table.entityPath}Service.save(${table.entityPath});
+            return new ResultJson(ResultStatusEnum.COMMON_SUCCESS);
+        } catch (Exception e) {
+			log.error("系统异常，请检查", e);
+            return new ResultJson(e);
+		}
+    }
+
+
+    /**
+     * 更新
+     */
+    @PostMapping("update")
+    public ResultJson update${table.entityName}(@RequestBody ${table.entityName}Param param){
+        try {
+            // [判断条件]根据业务补充...
+            if (StringUtils.isNull(param.getId())) {
+                log.info("id为空");
+                return new ResultJson(ResultStatusEnum.PARAMETER_ERROR);
+            }
+        	Date curDate = new Date();
+        	${table.entityName} ${table.entityPath} = new ${table.entityName}();
+            BeanUtils.copyProperties(param, ${table.entityPath});
+            ${table.entityPath}.setUpdateTime(curDate);
+            ${table.entityPath}Service.updateById(${table.entityPath});
+            return new ResultJson(ResultStatusEnum.COMMON_SUCCESS);
+        } catch (Exception e) {
+			log.error("系统异常，请检查", e);
+            return new ResultJson(e);
+		}
+     }
+
+
+    /**
+     * 删除
+     */
+    @RequestMapping("del")
+    public ResultJson del${table.entityName}(@RequestBody ${table.entityName}Param param){
+        try {
+            // [判断条件]根据业务补充...
+            if (StringUtils.isNull(param.getId())) {
+                log.info("id为空");
+                return new ResultJson(ResultStatusEnum.PARAMETER_ERROR);
+            }
+            ${table.entityPath}Service.removeById(param.getId());
+            return new ResultJson(ResultStatusEnum.COMMON_SUCCESS);
+        } catch (Exception e) {
+			log.error("系统异常，请检查", e);
+            return new ResultJson(e);
+		}
+    }
+    
+    /**
+	 * 下拉选项
+	 */
+	@PostMapping("options")
+	public ResultJson options(@RequestBody ${table.entityName}Param param) {
+		try {
+			if(StringUtils.isNull(param.getAppId())) {
+				param.setCreateId(super.appInfoId);
+			}
+			List<Options> list = ${table.entityPath}Service.queryOptions(param);
+			return new ResultJson(ResultStatusEnum.COMMON_SUCCESS, list);
+		} catch (Exception e) {
+			log.error(e.getMessage());
+			return new ResultJson(e);
+		}
+	}
+}
+#end
