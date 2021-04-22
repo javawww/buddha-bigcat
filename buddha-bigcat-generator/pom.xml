@@ -54,7 +54,7 @@
 
 
 		<!-- mybatis -->
-		<org.mybatis.version>3.4.6</org.mybatis.version>
+		<org.mybatis.version>3.5.6</org.mybatis.version>
 
 		<!-- mybatis plus -->
 		<com.baomidou.version>2.1.5</com.baomidou.version>
