@@ -23,7 +23,7 @@
 		<!-- tk.mybatis.spring -->
 		<tk.mybatis.spring.version>1.1.4</tk.mybatis.spring.version>
 		<!-- json组件 -->
-		<com.alibaba.fastjson.version>1.2.46</com.alibaba.fastjson.version>
+		<com.alibaba.fastjson.version>1.2.83</com.alibaba.fastjson.version>
       	<!-- The main class to start by executing "java -jar" -->
       	<start-class>com.App</start-class>
       	<dynamic-datasource-version>2.5.4</dynamic-datasource-version>
